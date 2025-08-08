@@ -1,0 +1,9 @@
+{
+  "Group": "Zimaltec",
+  "FriendlyName": "Zimaltec Pages",
+  "SystemName": "Zi.Plugin.Pages",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Zimaltec",
+  "DisplayOrder": 1
+}
