@@ -1,0 +1,26 @@
+<Project>
+  
+  <PropertyGroup Label="Package information">
+    <Product>Zimaltec nopCommerce Solutions</Product>
+    <Authors>Zimaltec Soluciones S.L.</Authors>
+    <Company>Zimaltec Soluciones S.L.</Company>
+    <Copyright>Copyright © 2024, Zimaltec Soluciones S.L., España</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Label="SDK Versions">
+    <NetStandardTargetVersion>netstandard2.1</NetStandardTargetVersion>
+    <NetCoreTargetVersion>net9.0</NetCoreTargetVersion>
+    <LangVersion>default</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Zimaltec.CustomPages">
+    <ZimaltecCustomPagesVersion>4.80.0</ZimaltecCustomPagesVersion>
+    <ZimaltecCustomPagesDescription>Plugin for creating custom pages and Topic Templates</ZimaltecCustomPagesDescription>
+    <ZimaltecCustomPagesRootNamespace>Zimaltec.CustomPages</ZimaltecCustomPagesRootNamespace>
+    <ZimaltecCustomPagesAssemblyName>Zimaltec.CustomPages</ZimaltecCustomPagesAssemblyName>
+    <ZimaltecCustomPagesPluginDirectory>Zimaltec.CustomPages</ZimaltecCustomPagesPluginDirectory>
+  </PropertyGroup>
+
+</Project>
