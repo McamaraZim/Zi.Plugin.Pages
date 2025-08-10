@@ -1,3 +1,16 @@
 ﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Nop.Web.Framework
+
+@inject INopHtmlHelper NopHtml
+@inject IWorkContext WorkContext
+@inject IGenericAttributeService GenericAttributeService
+
+@using Nop.Web.Framework.UI
+@using Nop.Core
+@using Nop.Services.Common
+
+
+@*TODO: Referenciar las constantes propias del plugin*@
+@* @using DefaultsPlugins = Zimaltec.Core.Constants.Defaults.Plugins; *@
+@* @using D = Zimaltec.Core.Constants.Defaults.Plugins.Zimaltec; *@
