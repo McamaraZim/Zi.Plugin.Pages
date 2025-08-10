@@ -1,68 +1,76 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <OutputPath>$(SolutionDir)\Presentation\Nop.Web\Plugins\Nop.Plugin.Zimaltec.CustomPages</OutputPath>
+    <TargetFramework>$(NetCoreTargetVersion)</TargetFramework>
+    <Nullable>$(Nullable)</Nullable>
+    <ImplicitUsings>$(ImplicitUsings)</ImplicitUsings>
+    <LangVersion>$(LangVersion)</LangVersion>
+    <Version>$(ZimaltecCustomPagesVersion)</Version>
+    <FileVersion>$(ZimaltecCustomPagesVersion)</FileVersion>
+    <AssemblyVersion>$(ZimaltecCustomPagesVersion)</AssemblyVersion>
+    <Description>$(ZimaltecCustomPagesDescription)</Description>
+    <Copyright>$(Copyright)</Copyright>
+    <Authors>$(Authors)</Authors>
+    <Company>$(Company)</Company>
+    <Product>$(Product)</Product>
+    <AssemblyName>Nop.Plugin.$(ZimaltecCustomPagesAssemblyName)</AssemblyName>
+    <RootNamespace>Nop.Plugin.$(ZimaltecCustomPagesRootNamespace)</RootNamespace>
+    <PluginDirectory>$(ZimaltecCustomPagesPluginDirectory)</PluginDirectory>
+    <OutputPath>..\..\..\Presentation\Nop.Web\Plugins\$(PluginDirectory)</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
-    <!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project.
-    You need to set this parameter to true if your plugin has a nuget package 
-    to ensure that the dlls copied from the NuGet cache to the output of your project-->
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="logo.jpg" />
-    <None Remove="plugin.json" />
-    <None Remove="Views\_ViewImports.cshtml" />
-    <None Remove="Areas\Admin\Views\_ViewImports.cshtml" />
+  <ItemGroup Label="Project References">
+    <ProjectReference Include="$(SolutionDir)\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+    <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\..\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\_ViewImports.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="Areas\Admin\Views\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Areas\Admin\Views\_ViewImports.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="Areas\Admin\Views\_ViewImports.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="Views\_ViewImports.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="Themes\*\Views\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
-    <ClearPluginAssemblies Include="$(SolutionDir)\Build\ClearPluginAssemblies.proj" />
-  </ItemGroup>
+  <!-- 1) Execute npm before compiling -->
+  <Target Name="BuildTheme" BeforeTargets="CoreCompile" Condition="'$(BuildingProject)' == 'true'">
+    <!-- If node_modules does not exist, install dependencies -->
+    <Exec Command="npm install --prefix ../../../" />
 
-  <ItemGroup>
-    <Folder Include="Areas\Admin\Components\" />
-    <Folder Include="Areas\Admin\Controllers\" />
-    <Folder Include="Areas\Admin\Extensions\" />
-    <Folder Include="Areas\Admin\Factories\" />
-    <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="Areas\Admin\Validators\" />    
-    <Folder Include="Components\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Extensions\" />
-    <Folder Include="Factories\" />
-    <Folder Include="Models\" />
-    <Folder Include="Services\" />
-    <Folder Include="Validators\" />    
-  </ItemGroup>
- 
-  <!-- This target execute after "Build" target -->
-  <Target Name="NopTarget" AfterTargets="Build">
-    <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)" Targets="NopClear" />
+    <!-- Run your build that generates the 'assets' folder -->
+    <Exec Command="npm run build"/>
+
+    <!-- 2) Now that the 'assets' folder exists, we dynamically create the list of files -->
+    <CreateItem Include="$(ProjectDir)assets\**\*.*">
+      <Output TaskParameter="Include" ItemName="AssetsFiles" />
+    </CreateItem>
   </Target>
 
+  <!-- 3) After compiling C#, we copy the Assets (in the same pass) -->
+  <Target Name="CopyAssetsFiles" AfterTargets="CoreCompile" Condition="'$(BuildingProject)' == 'true'">
+    <Message Text="Copying assets: @(AssetsFiles)" Importance="high" />
+    <Copy SourceFiles="@(AssetsFiles)"
+          DestinationFiles="@(AssetsFiles->'$(OutDir)\assets\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="false"/>
+  </Target>
+
+  <!-- 4) Validate node modules location -->
+  <Target Name="ValidateNodeModulesLocation" BeforeTargets="Build">
+    <Error Condition="Exists('$(ProjectDir)node_modules')" Text="🚫 node_modules should not be inside the plugin. Use 'npm install --prefix ../../../' instead." />
+  </Target>
+
+  <!-- 5) Delete unnecessary libraries from plugins path -->
+  <Target Name="NopTarget" AfterTargets="Build">
+    <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="NopClear"/>
+  </Target>
+  
 </Project>

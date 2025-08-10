@@ -1,0 +1,30 @@
+{
+  "name": "custompages",
+  "description": "Custom Pages for nopCommerce",
+  "version": "1.0.0",
+  "type": "module",
+  "homepage": "https://www.zimaltec.es",
+  "author": "https://www.zimaltec.es",
+  "keywords": [
+    "pages",
+    "custom pages",
+    "nopcommerce",
+    "topics"
+  ],
+  "license": "ISC",
+  "main": "/",
+
+  "scripts": {
+    "dev": "npm-run-all --silent -p scripts:compile vendor resources && npm run watch --silent",
+    "build": "npm-run-all --silent -p scripts:compile vendor resources",
+    "scripts": "npm-run-all -s scripts:compile scripts:minify",
+    "scripts:compile": "node build/scripts.js compile",
+    "scripts:minify": "node build/scripts.js minify",
+    "vendor": "node build/vendor.js",
+    "resources": "node build/resources.js",
+    "watch": "node build/watch.js"
+  },
+  "dependencies": {
+    "bootstrap": "5.3.3"
+  }
+}
