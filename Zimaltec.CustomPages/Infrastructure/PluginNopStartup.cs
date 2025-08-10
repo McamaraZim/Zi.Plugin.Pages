@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
 
-namespace Zimaltec.CustomPages.Infrastructure;
+namespace Nop.Plugin.Zimaltec.CustomPages.Infrastructure;
 public class PluginNopStartup : INopStartup
 {
     /// <summary>

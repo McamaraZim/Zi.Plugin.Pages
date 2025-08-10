@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Web.Framework.Components;
 
-namespace Zimaltec.CustomPages.Components;
+namespace Nop.Plugin.Zimaltec.CustomPages.Components;
 [ViewComponent(Name = "Custom")]
 public class CustomViewComponent : NopViewComponent
 {

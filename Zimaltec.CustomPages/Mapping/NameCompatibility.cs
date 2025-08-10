@@ -1,6 +1,6 @@
 ﻿using Nop.Data.Mapping;
 
-namespace Zimaltec.CustomPages.Mapping;
+namespace Nop.Plugin.Zimaltec.CustomPages.Mapping;
 public partial class NameCompatibility : INameCompatibility
 {
     /// <summary>

@@ -1,9 +1,9 @@
 ﻿using FluentMigrator;
 using Nop.Data.Extensions;
 using Nop.Data.Migrations;
-using Zimaltec.CustomPages.Domains;
+using Nop.Plugin.Zimaltec.CustomPages.Domains;
 
-namespace Zimaltec.CustomPages.Migrations;
+namespace Nop.Plugin.Zimaltec.CustomPages.Migrations;
 [NopMigration("2025-08-09 21:34:19", "Nop.Plugin.Zimaltec.CustomPages schema", MigrationProcessType.Installation)]
 public class SchemaMigration : AutoReversingMigration
 {

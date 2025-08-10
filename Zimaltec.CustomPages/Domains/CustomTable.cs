@@ -1,6 +1,6 @@
 ﻿using Nop.Core;
 
-namespace Zimaltec.CustomPages.Domains;
+namespace Nop.Plugin.Zimaltec.CustomPages.Domains;
 public partial class CustomTable : BaseEntity
 {
 

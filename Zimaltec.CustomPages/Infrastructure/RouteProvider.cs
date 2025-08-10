@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using Nop.Web.Framework.Mvc.Routing;
 
-namespace Zimaltec.CustomPages.Infrastructure;
+namespace Nop.Plugin.Zimaltec.CustomPages.Infrastructure;
 /// <summary>
 /// Represents plugin route provider
 /// </summary>

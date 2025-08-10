@@ -1,8 +1,8 @@
 ﻿using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Mapping.Builders;
-using Zimaltec.CustomPages.Domains;
+using Nop.Plugin.Zimaltec.CustomPages.Domains;
 
-namespace Zimaltec.CustomPages.Mapping.Builders;
+namespace Nop.Plugin.Zimaltec.CustomPages.Mapping.Builders;
 public class PluginBuilder : NopEntityBuilder<CustomTable>
 {
     #region Methods

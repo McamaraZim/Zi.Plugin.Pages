@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
 
-namespace Zimaltec.CustomPages.Infrastructure;
+namespace Nop.Plugin.Zimaltec.CustomPages.Infrastructure;
+
 public class ViewLocationExpander : IViewLocationExpander
 {
     /// <summary>
@@ -21,16 +22,18 @@ public class ViewLocationExpander : IViewLocationExpander
     /// expansion operation.</param>
     /// <param name="viewLocations">The sequence of view locations to expand.</param>
     /// <returns>A list of expanded view locations.</returns>        
-    public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
+    public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context,
+        IEnumerable<string> viewLocations)
     {
-        if (context.AreaName == "Admin")
-        {
-            viewLocations = new[] { $"/Plugins/Nop.Plugin.Zimaltec.CustomPages/Areas/Admin/Views/{context.ControllerName}/{context.ViewName}.cshtml" }.Concat(viewLocations);
-        }
-        else
-        {
-            viewLocations = new[] { $"/Plugins/Nop.Plugin.Zimaltec.CustomPages/Views/{context.ControllerName}/{context.ViewName}.cshtml" }.Concat(viewLocations);
-        }
+        viewLocations = context.AreaName == "Admin"
+            ? new[]
+            {
+                $"/Plugins/Nop.Plugin.Zimaltec.CustomPages/Areas/Admin/Views/{context.ControllerName}/{context.ViewName}.cshtml"
+            }.Concat(viewLocations)
+            : new[]
+            {
+                $"/Plugins/Nop.Plugin.Zimaltec.CustomPages/Views/{context.ControllerName}/{context.ViewName}.cshtml"
+            }.Concat(viewLocations);
 
         return viewLocations;
     }
