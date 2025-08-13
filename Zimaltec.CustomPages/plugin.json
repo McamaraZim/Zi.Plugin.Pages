@@ -6,6 +6,6 @@
   "SupportedVersions": [ "4.80" ],
   "Author": "Zimaltec",
   "DisplayOrder": 1,
-  "FileName": "Zimaltec.CustomPages.dll",
+  "FileName": "Nop.Plugin.Zimaltec.CustomPages.dll",
   "Description": "Custom pages with layouts, templates, ACL and multistore."
 }
