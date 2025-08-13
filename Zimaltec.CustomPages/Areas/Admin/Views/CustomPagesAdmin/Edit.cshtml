@@ -1,0 +1,54 @@
+﻿@model Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage.ZiPageModel
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.EDIT).Text;
+}
+<div class="content-header clearfix">
+    <h1 class="float-left">@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.EDIT)</h1>
+</div>
+
+<div class="content">
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id"/>
+                <div class="form-group">
+                    <label asp-for="Title"></label>
+                    <input asp-for="Title" class="form-control"/>
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SystemName"></label>
+                    <input asp-for="SystemName" class="form-control"/>
+                    <span asp-validation-for="SystemName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Published"></label>
+                    <input asp-for="Published" type="checkbox"/>
+                </div>
+
+                <hr/>
+                <h5>SEO</h5>
+                <div class="form-group">
+                    <label asp-for="SeName"></label>
+                    <input asp-for="SeName" class="form-control" placeholder="leave empty to keep current"/>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MetaTitle"></label>
+                    <input asp-for="MetaTitle" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MetaDescription"></label>
+                    <textarea asp-for="MetaDescription" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MetaKeywords"></label>
+                    <input asp-for="MetaKeywords" class="form-control"/>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a class="btn btn-secondary" href="@Url.Action("List")">Back</a>
+            </form>
+        </div>
+    </div>
+</div>

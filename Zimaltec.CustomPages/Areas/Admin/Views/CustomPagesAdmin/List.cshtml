@@ -1,0 +1,67 @@
+﻿@model Nop.Core.IPagedList<Nop.Plugin.Zimaltec.CustomPages.Domain.ZiPage>
+
+@{
+    Layout = "_AdminLayout";
+    var search = (Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage.ZiPageSearchModel)ViewBag.Search;
+    ViewBag.PageTitle = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.LIST).Text;
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.LIST)</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fa fa-plus"></i> @T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.ADD_NEW)
+        </a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="mb-3">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" name="keywords" value="@search.Keywords" class="form-control" placeholder="Search..."/>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-secondary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.TITLE)</th>
+                    <th>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.SYSTEM_NAME)</th>
+                    <th>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.PUBLISHED)</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td>@p.Id</td>
+                        <td>@p.Title</td>
+                        <td>@p.SystemName</td>
+                        <td>@(p.Published ? "✔" : "✖")</td>
+                        <td class="text-right">
+                            <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", new { id = p.Id })"><i class="fa fa-edit"></i></a>
+                            <form asp-action="Delete" method="post" style="display:inline" onsubmit="return confirm('Delete?')">
+                                <input type="hidden" name="id" value="@p.Id"/>
+                                <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            <div class="mt-2">
+                Página @Model.PageIndex + 1 de @Model.TotalPages — Total: @Model.TotalCount
+            </div>
+        </div>
+    </div>
+</div>
