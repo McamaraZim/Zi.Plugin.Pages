@@ -33,6 +33,8 @@ public class CustomPagesAdminController : BaseController
         _localizationService = localizationService;
     }
 
+    private const string VIEW_ROOT = "~/Plugins/Zimaltec.CustomPages/Areas/Admin/Views/CustomPagesAdmin/";
+
 
     public async Task<IActionResult> List(string? keywords = null, int page = 1, int pageSize = 15)
     {
@@ -44,7 +46,7 @@ public class CustomPagesAdminController : BaseController
         var result = await _pageService.SearchAsync(search.Keywords, search.Page - 1, search.PageSize);
 
         ViewBag.Search = search;
-        return View(result);
+        return View(VIEW_ROOT + "List.cshtml", result);
     }
 
     public async Task<IActionResult> Create()
@@ -54,7 +56,7 @@ public class CustomPagesAdminController : BaseController
             return AccessDeniedView();
 
         var model = new ZiPageModel();
-        return View(model);
+        return View(VIEW_ROOT + "Create.cshtml", model);
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -65,7 +67,7 @@ public class CustomPagesAdminController : BaseController
             return AccessDeniedView();
 
         if (!ModelState.IsValid)
-            return View(model);
+            return View(VIEW_ROOT + "Create.cshtml", model);
 
         var entity = new ZiPage
         {
@@ -108,7 +110,7 @@ public class CustomPagesAdminController : BaseController
             // SeName lo cargaremos a demanda si quieres (UrlRecordService.GetSeName), por simplicidad lo dejamos vacío
         };
 
-        return View(model);
+        return View(VIEW_ROOT + "Edit.cshtml", model); // 👈
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -123,7 +125,7 @@ public class CustomPagesAdminController : BaseController
             return RedirectToAction(nameof(List));
 
         if (!ModelState.IsValid)
-            return View(model);
+            return View(VIEW_ROOT + "Edit.cshtml", model);
 
         entity.Title = model.Title;
         entity.SystemName = model.SystemName;
