@@ -59,7 +59,7 @@ public class CustomPagesAdminMenuConsumer : IConsumer<AdminMenuCreatedEvent>
         {
             SystemName = "Zimaltec.CustomPages.Pages",
             Title = pagesTitle,
-            Url = "Admin/CustomPagesAdmin/List",
+            Url = "~/Admin/CustomPagesAdmin/List",
             IconClass = "far fa-dot-circle",
             Visible = true,
             PermissionNames = new List<string>
