@@ -15,6 +15,7 @@ public class PluginNopStartup : INopStartup
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IZiPageService, ZiPageService>();
+        services.AddScoped<IZiPageSectionService, ZiPageSectionService>();  
     }
 
     /// <summary>
