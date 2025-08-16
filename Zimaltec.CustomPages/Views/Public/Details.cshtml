@@ -1,0 +1,32 @@
+﻿@model Nop.Plugin.Zimaltec.CustomPages.Controllers.PublicZiPageVm
+@{
+    Layout = "_ColumnsOne"; // o el que uses
+    ViewBag.Title = Model.MetaTitle ?? Model.Title;
+
+    if (!string.IsNullOrWhiteSpace(Model.MetaTitle))
+    {
+        NopHtml.AddTitleParts(Model.MetaTitle);
+    }
+
+    if (!string.IsNullOrWhiteSpace(Model.MetaDescription))
+    {
+        NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
+    }
+
+    if (!string.IsNullOrWhiteSpace(Model.MetaKeywords))
+    {
+        NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
+    }
+}
+
+<h1>@Model.Title</h1>
+
+@foreach (var sec in Model.Sections)
+{
+    if (!string.IsNullOrWhiteSpace(sec.Name))
+    {
+        <h2>@sec.Name</h2>
+    }
+
+    @Html.Raw(sec.Html)
+}
