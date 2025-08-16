@@ -24,20 +24,21 @@
   <ItemGroup Label="Project References">
     <ProjectReference Include="$(SolutionDir)\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
     <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\..\Build\ClearPluginAssemblies.proj" />
+    <ProjectReference Include="..\..\..\Presentation\Nop.Web\Nop.Web.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Remove="Views\**\*.*" />
+    <None Remove="Areas\Admin\Views\**\*.*" />
+    <Content Include="plugin.json" CopyToOutputDirectory="Always" />
+    <Content Include="logo.png"    CopyToOutputDirectory="Always" />
+    <Content Include="Views\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
-    <Content Include="plugin.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Areas\Admin\Views\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Themes\*\Views\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="Areas\Admin\Views\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
