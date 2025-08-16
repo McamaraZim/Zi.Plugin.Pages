@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPageSection.ZiPageSectionListItemModel>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Topic</th>
+        <th>Orden</th>
+        <th class="text-right">Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var s in Model)
+    {
+        <tr>
+            <td>@(string.IsNullOrWhiteSpace(s.Name) ? "(sin nombre)" : s.Name)</td>
+            <td>@s.TopicTitle</td>
+            <td>@s.DisplayOrder</td>
+            <td class="text-right">
+
+                <a class="btn btn-sm btn-primary"
+                   href='@Url.Action("EditSection", "CustomPagesAdmin", new { area = AreaNames.ADMIN, id = s.Id })'>
+                    <i class="fa fa-edit"></i> Editar
+                </a>
+
+                <form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="MoveSection" method="post"
+                      class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@s.Id"/>
+                    <input type="hidden" name="pageId" value="@s.PageId"/>
+                    <button class="btn btn-sm btn-secondary" name="direction" value="-1" title="Subir">
+                        <i class="fa fa-arrow-up"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary" name="direction" value="1" title="Bajar">
+                        <i class="fa fa-arrow-down"></i>
+                    </button>
+                </form>
+
+                <form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="SyncSectionPlaceholders"
+                      method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@s.Id"/>
+                    <input type="hidden" name="pageId" value="@s.PageId"/>
+                    <button class="btn btn-sm btn-info">Sincronizar</button>
+                </form>
+
+                <form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="DeleteSection" method="post"
+                      class="d-inline" onsubmit="return confirm('¿Eliminar sección?');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@s.Id"/>
+                    <input type="hidden" name="pageId" value="@s.PageId"/>
+                    <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                </form>
+
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

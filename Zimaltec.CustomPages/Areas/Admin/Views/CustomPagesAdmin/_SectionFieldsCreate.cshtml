@@ -1,0 +1,40 @@
+﻿@model IList<Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPageSection.SectionFieldPostModel>
+@using Nop.Plugin.Zimaltec.CustomPages.Domain
+
+@for (var i = 0; i < Model.Count; i++)
+{
+    var f = Model[i];
+    <div class="card mb-3">
+        <div class="card-body">
+            <input type="hidden" name="Fields[@i].Key" value="@f.Key"/>
+            <div class="form-group">
+                <label>Clave</label>
+                <input class="form-control" value="@f.Key" disabled/>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo</label>
+                <select class="form-control" name="Fields[@i].Type" id="field-type-@i" data-index="@i">
+                    @{
+                        // Construimos las opciones sin C# en atributos
+                        foreach (FieldType t in Enum.GetValues(typeof(FieldType)))
+                        {
+                            if (t == f.Type)
+                            {
+                                <option value="@((int)t)" selected="selected">@t</option>
+                            }
+                            else
+                            {
+                                <option value="@((int)t)">@t</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group" id="value-container-@i">
+                <!-- aquí puedes inyectar vía JS el control de valor según Type (u ofrecer inputs básicos) -->
+            </div>
+        </div>
+    </div>
+}

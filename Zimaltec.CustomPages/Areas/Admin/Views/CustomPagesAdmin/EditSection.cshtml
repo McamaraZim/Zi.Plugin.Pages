@@ -1,0 +1,261 @@
+﻿@model Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPageSection.ZiPageSectionEditFullModel
+@using Nop.Plugin.Zimaltec.CustomPages.Domain
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = "Editar sección";
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Editar sección</h1>
+    <div class="float-right">
+        <a class="btn btn-secondary"
+           href='@Url.Action("Edit", "CustomPagesAdmin", new { area = AreaNames.ADMIN, id = Model.PageId })'>
+            <i class="fa fa-arrow-left"></i> Volver a la página
+        </a>
+    </div>
+</div>
+
+<form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="EditSection" method="post" id="section-edit-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Id" value="@Model.Id"/>
+    <input type="hidden" name="PageId" value="@Model.PageId"/>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="form-group">
+                <label>Topic plantilla</label>
+                <select class="form-control" asp-for="TopicId" asp-items="Model.Topics" id="topic-select"></select>
+                <small class="text-muted">
+                    Si cambias la plantilla, al guardar se <strong>sincronizarán</strong> placeholders (se
+                    reactivan/crean/hacen obsoletos según corresponda).
+                </small>
+            </div>
+
+
+            <div class="form-group">
+                <label>Nombre de la sección</label>
+                <input class="form-control" name="Name" value="@(Model.Name ?? "")"/>
+            </div>
+        </div>
+    </div>
+
+    @for (var i = 0; i < Model.Fields.Count; i++)
+    {
+        var f = Model.Fields[i];
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>@f.Key</strong>
+                @if (f.IsObsolete)
+                {
+                    <span class="badge badge-warning">Obsoleto</span>
+                }
+            </div>
+            <div class="card-body">
+                <input type="hidden" name="Fields[@i].FieldId" value="@f.FieldId"/>
+                <input type="hidden" name="Fields[@i].Key" value="@f.Key"/>
+                <input type="hidden" name="Fields[@i].DisplayOrder" value="@f.DisplayOrder"/>
+
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select class="form-control field-type" name="Fields[@i].Type" data-index="@i" id="field-type-@i">
+                        @foreach (FieldType t in Enum.GetValues(typeof(FieldType)))
+                        {
+                            if (t == f.Type)
+                            {
+                                <option value="@((int)t)" selected="selected">@t</option>
+                            }
+                            else
+                            {
+                                <option value="@((int)t)">@t</option>
+                            }
+                        }
+                    </select>
+
+                </div>
+
+                <div class="value-blocks" data-index="@i">
+                    <!-- Text -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Text)">
+                        <label>Texto</label>
+                        <input class="form-control" name="Fields[@i].TextValue" value="@(f.TextValue ?? "")"/>
+                    </div>
+
+                    <!-- RichText -->
+                    <div class="value-block" data-type-int="@((int)FieldType.RichText)">
+                        <label>Rich text (HTML)</label>
+                        <textarea class="form-control" name="Fields[@i].RichTextValue"
+                                  rows="6">@f.RichTextValue</textarea>
+                    </div>
+
+                    <!-- Image -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Image)">
+                        <label>PictureId</label>
+                        <input class="form-control" name="Fields[@i].PictureId" type="number"
+                               value="@(f.PictureId?.ToString() ?? "")"/>
+                        <small class="text-muted">Puedes integrar el picker de imágenes de nop aquí.</small>
+                    </div>
+
+                    <!-- File -->
+                    <div class="value-block" data-type-int="@((int)FieldType.File)">
+                        <label>DownloadId</label>
+                        <input class="form-control" name="Fields[@i].DownloadId" type="number"
+                               value="@(f.DownloadId?.ToString() ?? "")"/>
+                        <small class="text-muted">Puedes integrar el picker de descargas de nop aquí.</small>
+                    </div>
+
+                    <!-- Number -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Number)">
+                        <label>Número (int)</label>
+                        <input class="form-control" name="Fields[@i].IntValue" type="number"
+                               value="@(f.IntValue?.ToString() ?? "")"/>
+                    </div>
+
+                    <!-- Decimal -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Decimal)">
+                        <label>Decimal</label>
+                        <input class="form-control" name="Fields[@i].DecimalValue" type="number" step="0.0001"
+                               value="@(f.DecimalValue?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"/>
+                    </div>
+
+                    <!-- Bool -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Bool)">
+                        <input type="hidden" name="Fields[@i].BoolValue" value="false"/>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="Fields[@i].BoolValue" value="true"
+                                   @(f.BoolValue == true ? "checked" : "")/>
+                            <label class="form-check-label">Verdadero</label>
+                        </div>
+                    </div>
+
+                    <!-- DateTime -->
+                    <div class="value-block" data-type-int="@((int)FieldType.DateTime)">
+                        <label>Fecha/Hora</label>
+                        <input class="form-control" name="Fields[@i].DateTimeValue" type="datetime-local"
+                               value="@(f.DateTimeValue.HasValue ? f.DateTimeValue.Value.ToString("yyyy-MM-ddTHH\\:mm") : "")"/>
+                    </div>
+
+                    <!-- Link -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Link)">
+                        <div class="form-group">
+                            <label>Texto</label>
+                            <input class="form-control" name="Fields[@i].LinkText" value="@(f.LinkText ?? "")"/>
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input class="form-control" name="Fields[@i].LinkUrl" value="@(f.LinkUrl ?? "")"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Target</label>
+                            <input class="form-control" name="Fields[@i].LinkTarget" value="@(f.LinkTarget ?? "")"
+                                   placeholder="_blank, _self, ..."/>
+                        </div>
+                    </div>
+
+                    <!-- Entity -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Entity)">
+                        <div class="form-group">
+                            <label>Entidad</label>
+                            <input class="form-control" name="Fields[@i].EntityName" value="@(f.EntityName ?? "")"
+                                   placeholder="ej. Product, Category"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input class="form-control" name="Fields[@i].EntityId" type="number"
+                                   value="@(f.EntityId?.ToString() ?? "")"/>
+                        </div>
+                    </div>
+
+                    <!-- Json -->
+                    <div class="value-block" data-type-int="@((int)FieldType.Json)">
+                        <label>JSON</label>
+                        <textarea class="form-control mono" name="Fields[@i].JsonValue" rows="6"
+                                  placeholder='{"prop":"value"}'>@f.JsonValue</textarea>
+                    </div>
+
+                    <!-- List -->
+                    <div class="value-block" data-type-int="@((int)FieldType.List)">
+                        <label>Items (uno por línea)</label>
+                        <textarea class="form-control" id="listarea-@i"
+                                  rows="6">@((f.ListItems != null) ? string.Join("\n", f.ListItems) : "")</textarea>
+                        <div id="listhidden-@i"></div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>Settings (JSON)</label>
+                    <textarea class="form-control mono" name="Fields[@i].SettingsJson" rows="3"
+                              placeholder="Opcional">@f.SettingsJson</textarea>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-footer text-right">
+            <button type="submit" class="btn btn-primary">
+                @T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Common.SAVED)
+            </button>
+        </div>
+    </div>
+</form>
+
+<style>
+    .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .value-block {
+        display: none;
+    }
+</style>
+
+<script>
+    (function () {
+        function toggleBlocks(idx) {
+            const sel = document.getElementById('field-type-' + idx);
+            if (!sel) return;
+            const val = sel.value; // int
+            const wrap = document.querySelector('.value-blocks[data-index="' + idx + '"]');
+            if (!wrap) return;
+            const blocks = wrap.querySelectorAll('.value-block');
+            blocks.forEach(b => {
+                const t = b.getAttribute('data-type-int');
+                const visible = (t === val);
+                b.style.display = visible ? '' : 'none';
+                // deshabilitar inputs de bloques ocultos para no postear basura
+                b.querySelectorAll('input,select,textarea').forEach(el => {
+                    el.disabled = !visible;
+                });
+            });
+        }
+
+        // inicializar (mostrar el bloque correcto por cada fila)
+        document.querySelectorAll('select.field-type').forEach(sel => {
+            const idx = sel.getAttribute('data-index');
+            sel.addEventListener('change', () => toggleBlocks(idx));
+            toggleBlocks(idx);
+        });
+
+        // Prepara ListItems: convierte textarea en inputs Fields[i].ListItems[j]
+        function prepareLists() {
+            document.querySelectorAll('[id^="listarea-"]').forEach(ta => {
+                const idx = ta.id.split('-')[1];
+                const target = document.getElementById('listhidden-' + idx);
+                if (!target) return;
+                target.innerHTML = '';
+                const lines = ta.value.split(/\r?\n/).map(s => s.trim()).filter(s => s.length > 0);
+                lines.forEach((line, j) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `Fields[${idx}].ListItems[${j}]`;
+                    input.value = line;
+                    target.appendChild(input);
+                });
+            });
+        }
+
+        document.getElementById('section-edit-form')?.addEventListener('submit', function () {
+            prepareLists();
+        });
+    })();
+</script>

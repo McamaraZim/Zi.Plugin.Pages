@@ -10,8 +10,9 @@
 <div class="content">
     <div class="card">
         <div class="card-body">
-            <form asp-action="Edit" method="post">
-                <input type="hidden" asp-for="Id"/>
+            <form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
                 <div class="form-group">
                     <label asp-for="Title"></label>
                     <input asp-for="Title" class="form-control"/>
@@ -47,8 +48,29 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-secondary" href="@Url.Action("List")">Back</a>
-            </form>
+                <a class="btn btn-secondary"
+                   href="@Url.Action("List", "CustomPagesAdmin", new { area = AreaNames.ADMIN })">Back</a>
+            </form> 
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>Secciones</strong>
+                    <a class="btn btn-sm btn-primary"
+                       href="@Url.Action("AddSection", "CustomPagesAdmin", new { area = AreaNames.ADMIN, pageId = Model.Id })">
+                        <i class="fa fa-plus"></i> Añadir sección
+                    </a>
+                </div>
+                <div class="card-body" id="sections-block">
+                    <div class="text-muted">Cargando secciones…</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    (async function () {
+        const url = '@Url.Action("Sections", "CustomPagesAdmin", new { area = AreaNames.ADMIN, pageId = Model.Id })';
+        const res = await fetch(url, {headers: {"X-Requested-With": "XMLHttpRequest"}});
+        document.getElementById("sections-block").innerHTML = await res.text();
+    })();
+</script>
