@@ -1,76 +1,61 @@
 ﻿@model Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage.ZiPageModel
 @{
-    Layout = "_AdminLayout";
-    ViewBag.PageTitle = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.EDIT).Text;
+    var layout = "_AdminLayout";
+    if (ViewBag.isPopup == true) { layout = "_AdminPopupLayout"; }
+    Layout = layout;
+
+    NopHtml.SetActiveMenuItemSystemName(D.AdminMenu.MANAGE_PAGES);
 }
-<div class="content-header clearfix">
-    <h1 class="float-left">@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.EDIT)</h1>
-</div>
 
-<div class="content">
-    <div class="card">
-        <div class="card-body">
-            <form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="Edit" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="Id" />
-                <div class="form-group">
-                    <label asp-for="Title"></label>
-                    <input asp-for="Title" class="form-control"/>
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="SystemName"></label>
-                    <input asp-for="SystemName" class="form-control"/>
-                    <span asp-validation-for="SystemName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Published"></label>
-                    <input asp-for="Published" type="checkbox"/>
-                </div>
+<form method="post" id="zipage-form" asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="Edit">
+    <nop-antiforgery-token/>
+    <input type="hidden" asp-for="Id"/>
 
-                <hr/>
-                <h5>SEO</h5>
-                <div class="form-group">
-                    <label asp-for="SeName"></label>
-                    <input asp-for="SeName" class="form-control" placeholder="leave empty to keep current"/>
-                </div>
-                <div class="form-group">
-                    <label asp-for="MetaTitle"></label>
-                    <input asp-for="MetaTitle" class="form-control"/>
-                </div>
-                <div class="form-group">
-                    <label asp-for="MetaDescription"></label>
-                    <textarea asp-for="MetaDescription" class="form-control"></textarea>
-                </div>
-                <div class="form-group">
-                    <label asp-for="MetaKeywords"></label>
-                    <input asp-for="MetaKeywords" class="form-control"/>
-                </div>
+    @if (ViewBag.isPopup == true)
+    {
+        <input type="hidden" name="isPopup" id="isPopup" value="@ViewBag.isPopup.ToString()"/>
+    }
 
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-secondary"
-                   href="@Url.Action("List", "CustomPagesAdmin", new { area = AreaNames.ADMIN })">Back</a>
-            </form> 
-            <div class="card mt-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <strong>Secciones</strong>
-                    <a class="btn btn-sm btn-primary"
-                       href="@Url.Action("AddSection", "CustomPagesAdmin", new { area = AreaNames.ADMIN, pageId = Model.Id })">
-                        <i class="fa fa-plus"></i> Añadir sección
-                    </a>
-                </div>
-                <div class="card-body" id="sections-block">
-                    <div class="text-muted">Cargando secciones…</div>
-                </div>
-            </div>
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T(D.Localization.Admin.Pages.EDIT)
+            @if (ViewBag.isPopup != true)
+            {
+                <small>
+                    <i class="fa fa-arrow-circle-left"></i>
+                    <a asp-action="List">@T(D.Localization.Admin.Pages.BACK_TO_LIST)</a>
+                </small>
+            }
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" id="save-button" class="btn btn-primary save-settings-button">
+                <i class="far fa-save"></i> @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" id="save-continue-button" class="btn btn-primary save-settings-button">
+                <i class="far fa-save"></i> @T("Admin.Common.SaveContinue")
+            </button>
+            @if (Model.Id > 0 && ViewBag.isPopup != true)
+            {
+                <span id="zipage-delete" class="btn btn-danger">
+                    <i class="far fa-trash-alt"></i> @T("Admin.Common.Delete")
+                </span>
+            }
         </div>
     </div>
-</div>
 
-<script>
-    (async function () {
-        const url = '@Url.Action("Sections", "CustomPagesAdmin", new { area = AreaNames.ADMIN, pageId = Model.Id })';
-        const res = await fetch(url, {headers: {"X-Requested-With": "XMLHttpRequest"}});
-        document.getElementById("sections-block").innerHTML = await res.text();
-    })();
-</script>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                @{ await Html.RenderPartialAsync(D.Views.CREATE_OR_UPDATE_VIEW, Model); }
+            </div>
+        </div>
+    </section>
+</form>
+
+@if (Model.Id > 0 && ViewBag.isPopup != true)
+{
+    @* Para que funcione 100% como en Attachments,
+       tu acción POST Delete debería redirigir a List (no JSON).
+       Si prefieres mantener JSON, deja el botón fuera o cambia a AJAX manual. *@
+    <nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="zipage-delete"/>
+}

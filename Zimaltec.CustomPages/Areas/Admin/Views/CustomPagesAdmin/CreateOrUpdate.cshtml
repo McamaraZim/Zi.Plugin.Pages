@@ -1,0 +1,38 @@
+﻿@model Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage.ZiPageModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<nop-tabs id="zipage-create-or-edit" class="py-2 px-3">
+    <nop-tab asp-name="tab-settings" asp-default="true"
+             asp-title='@T(D.Localization.Admin.Pages.TAB_SETTINGS)'>
+        @{ await Html.RenderPartialAsync(D.Views.CREATE_OR_UPDATE_SETTINGS_VIEW, Model); }
+    </nop-tab>
+
+    @if (Model.Id > 0)
+    {
+        <nop-tab asp-name="tab-sections"
+                 asp-title='@T(D.Localization.Admin.Sections.TAB_TITLE)'>
+            <div class="card mt-2">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>@T(D.Localization.Admin.Sections.LIST_TITLE)</strong>
+                    <a class="btn btn-sm btn-primary"
+                       href="@Url.Action("AddSection", "CustomPagesAdmin", new { area = AreaNames.ADMIN, pageId = Model.Id })">
+                        <i class="fa fa-plus"></i> @T(D.Localization.Admin.Sections.ADD_NEW)
+                    </a>
+                </div>
+                <div class="card-body" id="sections-block">
+                    <div class="text-muted">@T(D.Localization.Admin.Sections.LOADING)...</div>
+                </div>
+            </div>
+
+            <script>
+                (async function () {
+                    const url = '@Url.Action("Sections", "CustomPagesAdmin", new { area = AreaNames.ADMIN, pageId = Model.Id })';
+                    const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+                    document.getElementById("sections-block").innerHTML = await res.text();
+                })();
+            </script>
+        </nop-tab>
+    }
+</nop-tabs>
