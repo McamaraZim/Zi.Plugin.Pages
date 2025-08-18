@@ -1,8 +1,10 @@
-﻿namespace Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage;
+﻿using Nop.Web.Framework.Models;
+using Nop.Web.Framework.Mvc.ModelBinding;
 
-public class ZiPageSearchModel
+namespace Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage;
+
+public record ZiPageSearchModel : BaseSearchModel
 {
-    public string? Keywords { get; set; }
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 15;
+    [NopResourceDisplayName("Plugins.Zimaltec.CustomPages.Admin.Pages.Title")]
+    public string? SearchTitle { get; set; }
 }
