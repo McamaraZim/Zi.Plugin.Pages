@@ -1,67 +1,140 @@
-﻿@model Nop.Core.IPagedList<Nop.Plugin.Zimaltec.CustomPages.Domain.ZiPage>
+﻿@model Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage.ZiPageSearchModel
+@using Nop.Plugin.Zimaltec.CustomPages.Constants
+@inject IGenericAttributeService GenericAttributeService
 
 @{
     Layout = "_AdminLayout";
-    var search = (Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage.ZiPageSearchModel)ViewBag.Search;
+
+    var customer = await WorkContext.GetCurrentCustomerAsync();
+    var defaultGridPageSize = AdminAreaSettings.DefaultGridPageSize;
+    var gridPageSizes = AdminAreaSettings.GridPageSizes;
+
+    NopHtml.SetActiveMenuItemSystemName(D.AdminMenu.MANAGE_PAGES);
+    
+    const string hideSearchBlockAttributeName = "CustomPagesAdmin.HideSearchBlock";
+    var hideSearchBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideSearchBlockAttributeName);
+
     ViewBag.PageTitle = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.LIST).Text;
 }
 
 <div class="content-header clearfix">
     <h1 class="float-left">@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.LIST)</h1>
     <div class="float-right">
-        <a href="@Url.Action("Create")" class="btn btn-primary">
-            <i class="fa fa-plus"></i> @T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.ADD_NEW)
+        <a href="Create" class="btn btn-primary">
+            <i class="fa fa-plus-square"></i>
+            @T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.ADD_NEW)
         </a>
     </div>
 </div>
 
-<div class="content">
-    <div class="card">
-        <div class="card-body">
-            <form method="get" class="mb-3">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <input type="text" name="keywords" value="@search.Keywords" class="form-control" placeholder="Search..."/>
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <nop-antiforgery-token/>
+            <form asp-controller="CustomPagesAdmin" asp-action="List" method="post">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")"
+                             data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")"
+                                                          aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <div class="col-md-3">
+                                            <nop-label asp-for="SearchTitle"/>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input asp-for="SearchTitle" class="form-control mw-100"
+                                                   placeholder="@T("Admin.Common.Search")"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-zipage" class="btn btn-primary btn-search">
+                                        <i class="fas fa-search"></i>
+                                        @T("Admin.Common.Search")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-sm-2">
-                        <button class="btn btn-secondary" type="submit">Search</button>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @{
+                            await Html.RenderPartialAsync("Table", new DataTablesModel
+                            {
+                                Name = "zipages-grid",
+                                UrlRead = new DataUrl("List", "CustomPagesAdmin", null),
+                                UrlDelete = new DataUrl("DeleteAjax", "CustomPagesAdmin", null),
+                                Length = defaultGridPageSize,
+                                LengthMenu = gridPageSizes,
+                                SearchButtonId = "search-zipage",
+                                Filters = new List<FilterParameter>
+                                {
+                                    new(nameof(Model.SearchTitle))
+                                },
+                                ColumnCollection = new List<ColumnProperty>
+                                {
+                                    new("Title")
+                                    {
+                                        Title = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.TITLE).Text,
+                                        Width = "300"
+                                    },
+                                    new("SystemName")
+                                    {
+                                        Title = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.SYSTEM_NAME).Text,
+                                        Width = "300"
+                                    },
+                                    new("Published")
+                                    {
+                                        Title = T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.PUBLISHED).Text,
+                                        Render = new RenderCustom("renderIsActive"),
+                                        Width = "80",
+                                        ClassName = NopColumnClassDefaults.CenterAll
+                                    },
+                                    new("Id")
+                                    {
+                                        Render = new RenderCustom("renderEditButton"),
+                                        Width = "120",
+                                        ClassName = NopColumnClassDefaults.CenterAll
+                                    },
+                                    new("Id")
+                                    {
+                                        Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+                                        Width = "120",
+                                        ClassName = NopColumnClassDefaults.CenterAll
+                                    }
+                                }
+                            });
+                        }
                     </div>
                 </div>
             </form>
-
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.TITLE)</th>
-                    <th>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.SYSTEM_NAME)</th>
-                    <th>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Pages.PUBLISHED)</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var p in Model)
-                {
-                    <tr>
-                        <td>@p.Id</td>
-                        <td>@p.Title</td>
-                        <td>@p.SystemName</td>
-                        <td>@(p.Published ? "✔" : "✖")</td>
-                        <td class="text-right">
-                            <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", new { id = p.Id })"><i class="fa fa-edit"></i></a>
-                            <form asp-action="Delete" method="post" style="display:inline" onsubmit="return confirm('Delete?')">
-                                <input type="hidden" name="id" value="@p.Id"/>
-                                <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-
-            <div class="mt-2">
-                Página @Model.PageIndex + 1 de @Model.TotalPages — Total: @Model.TotalCount
-            </div>
         </div>
     </div>
-</div>
+</section>
+
+<script>
+    function renderIsActive(data, type, row, meta) {
+        return row.Published
+            ? '<i class="fa fa-check true-icon"></i>'
+            : '<i class="fa fa-times false-icon"></i>';
+    }
+
+    function renderEditButton(data, type, row, meta) {
+        return '<a class="btn btn-default" href="Edit/' + data + '" title="@T("Admin.Common.Edit")">' +
+            '<i class="fas fa-pencil-alt"></i> ' +
+            '@T("Admin.Common.Edit")' +
+            '</a>';
+    }
+</script>
