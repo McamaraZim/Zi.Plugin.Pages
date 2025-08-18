@@ -10,6 +10,11 @@ public class Defaults
             public class CustomPages
             {
                 public const string NAME = KEY + ".CustomPages";
+                
+                public static class AdminMenu
+                {
+                    public const string MANAGE_PAGES = "Zimaltec.CustomPages.Pages";
+                }
 
                 public class Permissions
                 {
@@ -46,6 +51,12 @@ public class Defaults
                             public const string META_TITLE = KEY + "MetaTitle";
                             public const string META_DESCRIPTION = KEY + "MetaDescription";
                             public const string META_KEYWORDS = KEY + "MetaKeywords";
+                            public const string BACK_TO_LIST  = KEY + "BackToList";
+                            public const string TAB_SETTINGS  = KEY + "TabSettings";
+                            public const string SEO_SECTION   = KEY + "SeoSection";
+                            public const string SEO_SENAME_PLACEHOLDER = KEY + "SeoSeNamePlaceholder";
+                            public const string SEO_SENAME_HINT        = KEY + "SeoSeNameHint";
+
                         }
 
                         public static class Sections
@@ -58,6 +69,10 @@ public class Defaults
                             public const string DISPLAY_ORDER = KEY + "DisplayOrder";
                             public const string SYNC_BANNER = KEY + "SyncBanner";
                             public const string SYNC_NOW = KEY + "SyncNow";
+                            public const string TAB_TITLE    = KEY + "TabTitle";
+                            public const string LIST_TITLE   = KEY + "ListTitle";
+                            public const string LOADING      = KEY + "Loading";
+                            public const string BACK_TO_PAGE = KEY + "BackToPage";
                         }
 
                         public static class Fields
@@ -80,6 +95,21 @@ public class Defaults
                             public const string ERROR = KEY + "Error";
                         }
                     }
+                }
+                
+                public static partial class Views
+                {
+                    public const string ROOT = "~/Plugins/Zimaltec.CustomPages/Areas/Admin/Views/CustomPagesAdmin/";
+
+                    public const string LIST_VIEW   = ROOT + "List.cshtml";
+                    public const string CREATE_VIEW = ROOT + "Create.cshtml";
+                    public const string EDIT_VIEW   = ROOT + "Edit.cshtml";
+                    public const string ADD_SECTION_VIEW   = ROOT + "AddSection.cshtml";
+                    public const string EDIT_SECTION_VIEW  = ROOT + "EditSection.cshtml";
+                    public const string SECTION_LIST_VIEW  = ROOT + "_SectionsList.cshtml";
+                    public const string SECTION_FIELDS_CREATE_VIEW = ROOT + "_SectionFieldsCreate.cshtml";
+                    public const string CREATE_OR_UPDATE_VIEW = ROOT + "CreateOrUpdate.cshtml";
+                    public const string CREATE_OR_UPDATE_SETTINGS_VIEW = ROOT + "CreateOrUpdate.Settings.cshtml";
                 }
             }
         }
