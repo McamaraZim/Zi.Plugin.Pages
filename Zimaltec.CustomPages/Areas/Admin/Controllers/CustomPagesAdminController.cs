@@ -5,9 +5,8 @@ using Nop.Services.Security;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Web.Framework;
-using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-using Nop.Plugin.Zimaltec.CustomPages.Constants;
+using Nop.Web.Framework.Models.Extensions;
 using Nop.Plugin.Zimaltec.CustomPages.Services;
 using Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPage;
 using Nop.Plugin.Zimaltec.CustomPages.Domain;
@@ -16,13 +15,15 @@ using Nop.Services.Common;
 using Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPageSection;
 using Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiSectionField;
 using Nop.Services.Seo;
+using Nop.Web.Areas.Admin.Controllers;
+using D = Nop.Plugin.Zimaltec.CustomPages.Constants.Defaults.Plugins.Zimaltec.CustomPages;
 
 namespace Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Controllers;
 
-[Area(AreaNames.ADMIN)]
 [AuthorizeAdmin]
-[Route("Admin/CustomPagesAdmin")]
-public class CustomPagesAdminController : BaseController
+[Area(AreaNames.ADMIN)]
+[AutoValidateAntiforgeryToken]
+public class CustomPagesAdminController : BaseAdminController
 {
     private readonly IPermissionService _permissionService;
     private readonly IZiPageService _pageService;
@@ -56,14 +57,11 @@ public class CustomPagesAdminController : BaseController
         _ga = ga;
     }
 
-    private const string VIEW_ROOT = "~/Plugins/Zimaltec.CustomPages/Areas/Admin/Views/CustomPagesAdmin/";
-
     // GET: pantalla "Añadir sección" (con select de Topics plantilla)
-    [HttpGet("AddSection")]
+    [HttpGet]
     public async Task<IActionResult> AddSection(int pageId)
     {
-        if (!await _permissionService.AuthorizeAsync(Defaults.Plugins.Zimaltec.CustomPages.Permissions
-                .MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var model = new ZiPageSectionCreateModel { PageId = pageId };
@@ -82,53 +80,46 @@ public class CustomPagesAdminController : BaseController
         ViewBag.TemplateTopicItems = items;
 
         ViewBag.TemplateTopics = await _pageSectionService.GetTemplateTopicsAsync();
-        return View(VIEW_ROOT + "AddSection.cshtml", model);
+        return View(D.Views.ADD_SECTION_VIEW, model);
     }
 
     // Endpoint para cargar placeholders de un Topic (AJAX -> partial con los campos)
-    [HttpGet("GetTemplateFields")]
+    [HttpGet]
     public async Task<IActionResult> GetTemplateFields(int topicId)
     {
-        if (!await _permissionService.AuthorizeAsync(Defaults.Plugins.Zimaltec.CustomPages.Permissions
-                .MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var keys = await _pageSectionService.GetPlaceholdersAsync(topicId);
         var fields = keys.Select(k => new SectionFieldPostModel { Key = k, Type = FieldType.Text }).ToList();
-        return PartialView(VIEW_ROOT + "_SectionFieldsCreate.cshtml", fields);
+        return PartialView(D.Views.SECTION_FIELDS_CREATE_VIEW, fields);
     }
 
-    [HttpGet("List")]
-    public async Task<IActionResult> List(string? keywords = null, int page = 1, int pageSize = 15)
+    [HttpGet]
+    public async Task<IActionResult> List()
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
-        var search = new ZiPageSearchModel { Keywords = keywords, Page = page, PageSize = pageSize };
-        var result = await _pageService.SearchAsync(search.Keywords, search.Page - 1, search.PageSize);
-
-        ViewBag.Search = search;
-        return View(VIEW_ROOT + "List.cshtml", result);
+        var model = new ZiPageSearchModel();
+        return View(D.Views.LIST_VIEW, model);
     }
 
-    [HttpGet("Create")]
+    [HttpGet]
     public async Task<IActionResult> Create()
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var model = new ZiPageModel();
-        return View(VIEW_ROOT + "Create.cshtml", model);
+        return View(D.Views.CREATE_VIEW, model);
     }
 
 // GET: Editar sección
-    [HttpGet("EditSection/{id:int}")]
+    [HttpGet]
     public async Task<IActionResult> EditSection(int id)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var details = await _pageSectionService.GetSectionDetailsAsync(id);
@@ -170,14 +161,13 @@ public class CustomPagesAdminController : BaseController
             vm.Fields.Add(item);
         }
 
-        return View(VIEW_ROOT + "EditSection.cshtml", vm);
+        return View(D.Views.EDIT_SECTION_VIEW, vm);
     }
 
-    [HttpGet("Sections")]
+    [HttpGet]
     public async Task<IActionResult> Sections(int pageId)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var sections = await _pageSectionService.GetByPageIdAsync(pageId);
@@ -205,14 +195,14 @@ public class CustomPagesAdminController : BaseController
             })
             .ToList();
 
-        return PartialView(VIEW_ROOT + "_SectionsList.cshtml", vm);
+        return PartialView(D.Views.SECTION_LIST_VIEW, vm);
     }
 
-    [HttpGet("Edit/{id:int}")]
+    [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
         if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+                D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var entity = await _pageService.GetByIdAsync(id);
@@ -233,22 +223,49 @@ public class CustomPagesAdminController : BaseController
             SeName = await _urlRecordService.GetSeNameAsync(entity, currentLanguage.Id)
         };
 
-        return View(VIEW_ROOT + "Edit.cshtml", model); // 👈
+        return View(D.Views.EDIT_VIEW, model);
     }
 
 
     //<------------------------------------------------->
 
-
-    [HttpPost("Create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ZiPageModel model)
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> List(ZiPageSearchModel searchModel)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
+            return Json(new { error = "Access denied" });
+
+        // Implementa esto en tu servicio (recomendado)
+        // Devuelve IPagedList<ZiPage> ya filtrado/paginado
+        var pagedEntities = await _pageService.SearchAsync(
+            title: searchModel.SearchTitle,
+            pageIndex: searchModel.Page - 1,
+            pageSize: searchModel.PageSize
+        );
+
+        var rows = pagedEntities.Select(p => new ZiPageModel
+        {
+            Id = p.Id, Title = p.Title, SystemName = p.SystemName, Published = p.Published
+        }).ToList();
+
+        var paged = new PagedList<ZiPageModel>(rows, searchModel.Page - 1, searchModel.PageSize,
+            pagedEntities.TotalCount);
+
+        var grid = new ZiPageListModel().PrepareToGrid(searchModel, paged, () => paged);
+        return Json(grid);
+    }
+
+
+    [HttpPost]
+    [ParameterBasedOnFormName("save-continue", "continueEditing")]
+    public async Task<IActionResult> Create(ZiPageModel model, bool continueEditing)
+    {
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         if (!ModelState.IsValid)
-            return View(VIEW_ROOT + "Create.cshtml", model);
+            return View(D.Views.CREATE_VIEW, model);
 
         var entity = new ZiPage
         {
@@ -263,17 +280,20 @@ public class CustomPagesAdminController : BaseController
         await _pageService.InsertAsync(entity, model.SeName);
 
         _notificationService.SuccessNotification(
-            await _localizationService.GetResourceAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Common.SAVED));
+            await _localizationService.GetResourceAsync(D.Localization.Admin.Common.SAVED));
 
-        return RedirectToAction(nameof(List));
+        if (!continueEditing)
+            return RedirectToAction(nameof(List));
+
+        await SaveSelectedTabNameAsync();
+        return RedirectToAction(nameof(Edit), new { id = entity.Id });
     }
 
-    [HttpPost("Edit/{id}"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(ZiPageModel model, int id)
+    [HttpPost]
+    [ParameterBasedOnFormName("save-continue", "continueEditing")]
+    public async Task<IActionResult> Edit(ZiPageModel model, bool continueEditing, int id)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var entity = await _pageService.GetByIdAsync(model.Id);
@@ -281,7 +301,7 @@ public class CustomPagesAdminController : BaseController
             return RedirectToAction(nameof(List));
 
         if (!ModelState.IsValid)
-            return View(VIEW_ROOT + "Edit.cshtml", model);
+            return View(D.Views.EDIT_VIEW, model);
 
         entity.Title = model.Title;
         entity.SystemName = model.SystemName;
@@ -293,66 +313,88 @@ public class CustomPagesAdminController : BaseController
         await _pageService.UpdateAsync(entity, model.SeName);
 
         _notificationService.SuccessNotification(
-            await _localizationService.GetResourceAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Common.SAVED));
+            await _localizationService.GetResourceAsync(D.Localization.Admin.Common.SAVED));
+
+        if (!continueEditing)
+            return RedirectToAction(nameof(List));
+
+        await SaveSelectedTabNameAsync();
+        return RedirectToAction(nameof(Edit), new { id = model.Id });
+    }
+
+    [HttpPost("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
+            return AccessDeniedView();
+
+        var entity = await _pageService.GetByIdAsync(id);
+        if (entity == null)
+        {
+            _notificationService.ErrorNotification(
+                await _localizationService.GetResourceAsync(D.Localization.Admin.Common.ERROR));
+            return RedirectToAction(nameof(List));
+        }
+
+        await _pageService.DeleteAsync(entity);
+
+        _notificationService.SuccessNotification(
+            await _localizationService.GetResourceAsync(D.Localization.Admin.Common.SAVED));
 
         return RedirectToAction(nameof(List));
     }
 
-    [HttpPost("Delete")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpPost("DeleteAjax")]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> DeleteAjax(int id)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
-            return AccessDeniedView();
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
+            return Json(new { Result = false, Error = "Access denied" });
 
         var entity = await _pageService.GetByIdAsync(id);
         if (entity != null)
             await _pageService.DeleteAsync(entity);
 
-        return RedirectToAction(nameof(List));
+        return new JsonResult(null); //TODO: Reemplazar por EmptyJson de Core.
     }
 
     // POST: guardar sección + campos + valores
-    [HttpPost("AddSection"), ValidateAntiForgeryToken]
+    [HttpPost]
     public async Task<IActionResult> AddSection(ZiPageSectionCreateModel model)
     {
-        if (!await _permissionService.AuthorizeAsync(Defaults.Plugins.Zimaltec.CustomPages.Permissions
-                .MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         if (!ModelState.IsValid)
         {
             ViewBag.TemplateTopics = await _pageSectionService.GetTemplateTopicsAsync();
-            return View(VIEW_ROOT + "AddSection.cshtml", model);
+            return View(D.Views.ADD_SECTION_VIEW, model);
         }
 
         await _pageSectionService.CreateSectionWithFieldsAsync(model);
 
         _notificationService.SuccessNotification(
-            await _localizationService.GetResourceAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Common.SAVED));
+            await _localizationService.GetResourceAsync(D.Localization.Admin.Common.SAVED));
 
         return RedirectToAction(nameof(Edit), new { id = model.PageId });
     }
 
     // POST: sincronizar placeholders desde la plantilla (nuevos=Text, obsoletos=marcados)
-    [HttpPost("SyncSectionPlaceholders"), ValidateAntiForgeryToken]
+    [HttpPost]
     public async Task<IActionResult> SyncSectionPlaceholders(int id, int pageId)
     {
-        if (!await _permissionService.AuthorizeAsync(Defaults.Plugins.Zimaltec.CustomPages.Permissions
-                .MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         await _pageSectionService.SyncFromTemplateAsync(id, createNewAsText: true);
         return RedirectToAction(nameof(Edit), new { id = pageId });
     }
 
-    [HttpPost("DeleteSection"), ValidateAntiForgeryToken]
+    [HttpPost]
     public async Task<IActionResult> DeleteSection(int id, int pageId)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var s = await _pageSectionService.GetByIdAsync(id);
@@ -361,11 +403,10 @@ public class CustomPagesAdminController : BaseController
         return RedirectToAction(nameof(Edit), new { id = pageId });
     }
 
-    [HttpPost("MoveSection"), ValidateAntiForgeryToken]
+    [HttpPost]
     public async Task<IActionResult> MoveSection(int id, int pageId, int direction)
     {
-        if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+        if (!await _permissionService.AuthorizeAsync(D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         var list = (await _pageSectionService.GetByPageIdAsync(pageId)).ToList();
@@ -385,7 +426,8 @@ public class CustomPagesAdminController : BaseController
         return RedirectToAction(nameof(Edit), new { id = pageId });
     }
 
-    [HttpPost("SaveTopicTemplateFlag")]
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> SaveTopicTemplateFlag(int id, bool isTemplate)
     {
         if (!await _permissionService.AuthorizeAsync(StandardPermission.ContentManagement.TOPICS_CREATE_EDIT_DELETE))
@@ -399,11 +441,11 @@ public class CustomPagesAdminController : BaseController
     }
 
     // POST: Editar sección (guardar)
-    [HttpPost("EditSection/{id}"), ValidateAntiForgeryToken]
+    [HttpPost]
     public async Task<IActionResult> EditSection(int id, ZiPageSectionEditFullModel model)
     {
         if (!await _permissionService.AuthorizeAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Permissions.MANAGE_SYSTEM_NAME))
+                D.Permissions.MANAGE_SYSTEM_NAME))
             return AccessDeniedView();
 
         await _pageSectionService.SaveSectionEditAsync(
@@ -414,8 +456,7 @@ public class CustomPagesAdminController : BaseController
         );
 
         _notificationService.SuccessNotification(
-            await _localizationService.GetResourceAsync(
-                Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Common.SAVED));
+            await _localizationService.GetResourceAsync(D.Localization.Admin.Common.SAVED));
 
         return RedirectToAction(nameof(Edit), new { id = model.PageId });
     }
