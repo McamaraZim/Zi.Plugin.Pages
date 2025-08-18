@@ -1,65 +1,85 @@
 ﻿@model Nop.Plugin.Zimaltec.CustomPages.Areas.Admin.Models.ZiPageSection.ZiPageSectionCreateModel
 @{
     Layout = "_AdminLayout";
+    NopHtml.SetActiveMenuItemSystemName(D.AdminMenu.MANAGE_PAGES);
 }
 
 <form asp-area="Admin" asp-controller="CustomPagesAdmin" asp-action="AddSection" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="PageId" value="@Model.PageId"/>
+    <nop-antiforgery-token/>
+    <input type="hidden" asp-for="PageId"/>
 
     <div class="content-header clearfix">
-        <h1 class="float-left">Añadir sección</h1>
+        <h1 class="float-left">
+            @T(D.Localization.Admin.Sections.ADD_NEW)
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="Edit" asp-route-id="@Model.PageId">@T(D.Localization.Admin.Sections.BACK_TO_PAGE)</a>
+            </small>
+        </h1>
         <div class="float-right">
-            <a class="btn btn-secondary"
-               href='@Url.Action("Edit", "CustomPagesAdmin", new { area = AreaNames.ADMIN, id = Model.PageId })'>
-                <i class="fa fa-arrow-left"></i> Volver a la página
-            </a>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <strong>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Sections.ADD_NEW)</strong>
-        </div>
-        <div class="card-body">
-            <div class="form-group">
-                <label>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Sections.TOPIC)</label>
-                <select class="form-control" asp-for="TopicId" id="TopicId" asp-items="ViewBag.TemplateTopicItems">
-                    <option value="">--</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Sections.NAME)</label>
-                <input class="form-control" asp-for="Name"/>
-            </div>
-
-            <div class="form-group">
-                <label>@T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Sections.DISPLAY_ORDER)</label>
-                <input class="form-control" asp-for="DisplayOrder" type="number"/>
-            </div>
-
-            <div id="template-fields"></div>
-        </div>
-
-        <div class="card-footer text-right">
-            <button type="submit" class="btn btn-primary">
-                @T(Defaults.Plugins.Zimaltec.CustomPages.Localization.Admin.Common.SAVED)
+            <button type="submit" name="save" class="btn btn-primary save-settings-button">
+                <i class="far fa-save"></i> @T("Admin.Common.Save")
             </button>
         </div>
     </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <label class="control-label">@T(D.Localization.Admin.Sections.TOPIC)</label>
+                            </div>
+                            <div class="col-md-9">
+                                <select class="form-control" asp-for="TopicId" id="TopicId" asp-items="ViewBag.TemplateTopicItems">
+                                    <option value="">--</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="Name"/>
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Name"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="DisplayOrder"/>
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="DisplayOrder" />
+                            </div>
+                        </div>
+
+                        <div id="template-fields"></div>
+                    </div>
+
+                    <div class="card-footer text-right">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="far fa-save"></i> @T("Admin.Common.Save")
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
 </form>
 
 <script>
     document.getElementById('TopicId').addEventListener('change', async function () {
         const topicId = this.value;
         const target = document.getElementById('template-fields');
-        if (!topicId) {
-            target.innerHTML = '';
-            return;
-        }
+        if (!topicId) { target.innerHTML = ''; return; }
         const url = '@Url.Action("GetTemplateFields", "CustomPagesAdmin", new { area = AreaNames.ADMIN })' + '?topicId=' + encodeURIComponent(topicId);
-        const res = await fetch(url, {headers: {"X-Requested-With": "XMLHttpRequest"}});
+        const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
         target.innerHTML = await res.text();
     });
 </script>
